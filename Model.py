@@ -96,6 +96,7 @@ class Model(object):
         self.agents = []
         self.verbose = False
         self.bid_sizes = []
+        self.internal_conflict_rule = "external"
         #self.setup_model()
 
 
@@ -156,19 +157,31 @@ class Model(object):
             owner1.wealth += owner0.wealth
             return
 
-        # If both interests belong to the same actor, jettison the lowest
-        # one with a proportion of its wealth.
-        if owner0 is owner1:
-            min_interest = min([interest0, interest1], 
-                key=lambda x: x.value)
+        # If both interests belong to the same actor, follow the set rule
 
-            new_owner = Agent(random.randint(100, 999), self)
-            wealth = owner0.allocate_resources(min_interest)
-            self.transfer_interest(min_interest, new_owner)
-            new_owner.wealth = wealth
-            #new_owner.wealth = min_interest.value
-            self.agents.append(new_owner)
-            return
+        
+        if owner0 is owner1:
+
+            if self.internal_conflict_rule == "internal":
+                # The owner must defend both active interests
+                owner0.allocate_resources(interest0)
+                owner0.allocate_resources(interest1)
+                return
+
+            if self.internal_conflict_rule == "external":
+                #jettison the lowest one with a proportion of its wealth.
+                min_interest = min([interest0, interest1], 
+                    key=lambda x: x.value)
+
+                new_owner = Agent(random.randint(100, 999), self)
+                wealth = owner0.allocate_resources(min_interest)
+                self.transfer_interest(min_interest, new_owner)
+                new_owner.wealth = wealth
+                #new_owner.wealth = min_interest.value
+                self.agents.append(new_owner)
+                return
+            else:
+                raise Exception("Incorrect internal conflict rule!")
 
         # Print-debug
         if self.verbose:
