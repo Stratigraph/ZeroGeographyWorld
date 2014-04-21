@@ -27,11 +27,11 @@ international system. The model attempts to capture the following assumptions:
 
 4. Strong actors will tend to act more frequently than weak actors, and interact with a wider range of actors.
 
-4. Strong actors will generally have an advantage over weak ones.
+5. Strong actors will generally have an advantage over weak ones.
 
-5. Weak actors may nevertheless be able to defeat stronger actors over issues that are much more salient to the weak actor than the stronger one.
+6. Weak actors may nevertheless be able to defeat stronger actors over issues that are much more salient to the weak actor than the stronger one.
 
-6. Weak actors with no ability to gain additional resources cease to be relevant actors.
+7. Weak actors with no ability to gain additional resources cease to be relevant actors.
 
 These assumptions are generally similar to the driving assumptions of the geopolitical models described above, particularly GeoSim. Like GeoSim, the model as implemented here does not include alliances. As argued by [@min_2008], alliances represent an important component of an international system, and one which is likely to influence the outcomes significantly; as such, a detailed aspatial alliance model is outside the scope of this paper. However, as [@cederman_1997] demonstrates, many features of an international system may emerge even in the absence of alliances. Furthermore, I will argue that some features of alliances emerge endogenously from the model's logic.
 
@@ -50,9 +50,10 @@ Actors represent primarily states, though they may be any autonomous actor in an
 The model proceeds in **ticks**, with each tick representing an interaction between (generally) two actors. A tick proceeds as follows:
 
 1. Two interests are chosen uniformly at random to become active.
-2. The actors who control these interests are activated. Assuming the interests are owned by different actors:
-3. Both actors simultaneously allocate wealth toward both active interests, as described below. This wealth is subtracted from the actors' endowment of wealth.
-4. The actor who allocated the most wealth to each interest gains or maintains control of it. 
+2. The actors who control these interests are activated. 
+    1. If both actors have only one interest, they merge together, combining both interests and wealths.
+	2. If at least one actor has two or more interests, both actors simultaneously allocate wealth toward both active interests based on the decision rule described below. This wealth is subtracted from the actors' endowment of wealth. The actor who allocated the most wealth to each interest gains or maintains control of it. 
+	3. If both interests are owned by the same actor, this represents *internal conflict*, which is described below.
 
 After one interaction concludes, two more interests are activated at random, beginning the next interaction. Additionally, after every set number of interactions, all actors gain resources based on the total value of interests they currently control.
 
@@ -60,8 +61,30 @@ Note that there is no reason to assume that interactions represent evenly-spaced
 
 ### Actor Decisionmaking
 
+Most interactions involve interests owned by two different actors. From the perspective of each actor, they are defending the interest they own and attacking the other's interest. The actors allocate wealth to each in proportion to its fraction of their total wealth. 
 
+Formally, let $i$ and $j$ designate the actors, with $w_i$ and $w_j$ their respective wealths. Actor $i$ has $n$ interests, with their values designated $v_0$ through $v_m$. Let $v_*$ be the interest $i$ is defending, and $v_j$ the interest owned by $j$ which $i$ is attacking. The wealth $w(v)$ allocated to each interest is:
 
+$w(v_*)=w_i\frac{v_*}{\sum_{k=0}^{m}v_k}$
+
+$w(v_j)=(w_i - w(v_*))\frac{v_j
+}{\sum_{k=0}^{m}v_k + v_j}$
+
+This decision rule corresponds to assumptions 3-6, as described above. The more wealth an actor has, the more, in absolute terms, they will be able to allocate to both active interests. However, a to high-wealth actor, a given interest may represent only a small fraction of their total interests, and thus they may allocate fewer resources toward it. An actor with a single interest, in contrast, will always devote *all* its wealth to defending it. Note also that given two interests of identical value, the rules above ensure that actors will allocate more resources to defending the interest they own over an identically-valued interest they are attacking.
+
+### Internal Conflict
+
+As actors accumulate more interests, the chances increase that two interests will become activated which both belong to the same actor. This captures the issue of internal conflict: as political actors grow and expand to include more diverse interests, the chances that these interests will come into conflict increases. 
+
+I experiment with two different mechanisms for resolving internal conflicts:
+* **Internal resolution** simply requires the owner to expend wealth to defend both interests, following the rule described above. This represents the actor expending resources to resolve the conflict and maintain the status quo.
+*  **External resolution** assumes that the conflict may only be resolved by jettisoning one of the conflicting interests. Under this rule, the lower-valued interest is removed from the actor, becoming an independent actor with initial wealth equal to what the original owner would have expended defending it. 
+
+These are highly simplified rules, which only correspond to some ways such conflicts are resolved in reality. However, they are sufficiently different as to facilitate experiments capturing the difference between the resolution rules.
+
+## Model Setup
+
+I instantiate the model with 100 interests, each with an integer value drawn uniformly between 1-100. Initially, each interest is owned by its own actor. I set the number of interactions between resource growth to be 10.
 
 # Results and Findings
 

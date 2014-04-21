@@ -150,6 +150,12 @@ class Model(object):
         owner0 = interest0.owner
         owner1 = interest1.owner
 
+        # If both are singletons, they merge together.
+        if len(owner0.interests) == 1 and len(owner1.interests) == 1:
+            self.transfer_interest(interest0, owner1)
+            owner1.wealth += owner0.wealth
+            return
+
         # If both interests belong to the same actor, jettison the lowest
         # one with a proportion of its wealth.
         if owner0 is owner1:
