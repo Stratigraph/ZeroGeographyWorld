@@ -9,6 +9,7 @@ and elsewhere.
 '''
 from __future__ import division
 import random
+import math
 
 
 class Interest(object):
@@ -87,11 +88,11 @@ class Model(object):
     The actual model management class.
     '''
 
-    def __init__(self):
+    def __init__(self, interest_count = 100):
         '''
         Create a new model.
         '''
-        self.interest_count = 100
+        self.interest_count = interest_count
         self.interests = []
         self.agents = []
         self.verbose = False
@@ -100,7 +101,7 @@ class Model(object):
         #self.setup_model()
 
 
-    def setup_model(self):
+    def base_model(self):
         '''
         Initialize the model with one interest per agent.
         '''
@@ -131,6 +132,45 @@ class Model(object):
             interest = Interest(i, agent, value)
             self.interests.append(interest)
             agent.add_interest(interest)
+
+    def set_polarity(self, large_agents, fraction_large):
+        '''
+        Create a system with set polarity.
+
+        Args:
+            large_agents: The system's polarity; number of 'large' agents.
+            fraction_large: Fraction of all interests allocated to the large 
+                agents.
+        '''
+
+        interests_per_large_agent = self.interest_count / large_agents
+        interests_per_large_agent *= fraction_large
+        interests_per_large_agent = int(math.floor(interests_per_large_agent))
+
+        interest_count = 0
+        # Create large agents
+        for i in range(large_agents):
+            agent = Agent(i, self)
+            self.agents.append(agent)
+            for j in range(interests_per_large_agent):
+                id_num = interest_count + j
+                interest_count += 1
+                value = random.randint(1, 100)
+                interest = Interest(id_num, agent, value)
+                self.interests.append(interest)
+                agent.add_interest(interest)
+
+        # Create small agents
+        small_agents = self.interest_count - interest_count
+        for j in range(small_agents):
+            agent_id = j + large_agents
+            interest_id = j + interest_count
+            agent = Agent(agent_id, self)
+            value = random.randint(1, 100)
+            interest = Interest(interest_id, agent, value)
+            agent.add_interest(interest)
+            self.interests.append(interest)
+            self.agents.append(agent)
 
 
     def interaction(self):
