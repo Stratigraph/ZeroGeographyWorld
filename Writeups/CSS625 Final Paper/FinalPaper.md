@@ -86,7 +86,10 @@ These are highly simplified rules, which only correspond to some ways such confl
 
 I instantiate the model with 100 interests, each with an integer value drawn uniformly between 1-100. Initially, each interest is owned by its own actor. I set the number of interactions between resource growth to be 10.
 
-I run two experiments, one with each of the internal conflict rules described above. 
+I run several experiments, one with each of the internal conflict rules described above. 
+
+## Analysis
+
 
 # Results and Findings
 

@@ -93,12 +93,24 @@ class Model(object):
         Create a new model.
         '''
         self.interest_count = interest_count
+        self.interaction_count = 5
         self.interests = []
         self.agents = []
         self.verbose = False
         self.bid_sizes = []
         self.internal_conflict_rule = "external"
+        self.initialization = ""
         #self.setup_model()
+
+        # Model statistics
+        self.interests_per_turn = [] # All interests at each turn
+        self.active_agents = [] # Count of active agents per turn
+
+
+
+    # ============================================================
+    #               MODEL INITIALIZATIONS
+    # ============================================================
 
 
     def base_model(self):
@@ -114,6 +126,11 @@ class Model(object):
             agent.add_interest(interest)
             self.interests.append(interest)
             self.agents.append(agent)
+        self.initialization = "base_model"
+
+        for agent in self.agents:
+            agent.grow_resources()
+
 
     def burnin_model(self, num_agents):
         '''
@@ -132,6 +149,11 @@ class Model(object):
             interest = Interest(i, agent, value)
             self.interests.append(interest)
             agent.add_interest(interest)
+
+        for agent in self.agents:
+            agent.grow_resources()
+
+        self.initialization = "burnin_model"
 
     def set_polarity(self, large_agents, fraction_large):
         '''
@@ -171,6 +193,45 @@ class Model(object):
             agent.add_interest(interest)
             self.interests.append(interest)
             self.agents.append(agent)
+
+        for agent in self.agents:
+            agent.grow_resources()
+
+        self.initialization = "polarity_" + str(large_agents)
+        self.initialization += "_" + str(fraction_large)
+
+        
+    
+    # ============================================================
+    #               MODEL RUNNING
+    # ============================================================
+
+    def run_model(self, turn_count):
+        '''
+        Run the model for the given number of turns.
+        '''
+        for i in range(turn_count):
+            self.turn()
+
+
+    def turn(self):
+        '''
+        Run a single turn of the model and record the results.
+        '''
+        # Run the interactions:
+        for i in range(self.interaction_count):
+            self.interaction()
+
+        # Collect statistics
+        agent_interests = [len(agent.interests) for agent in self.agents]
+        self.interests_per_turn.append(agent_interests)
+        
+        self.active_agents.append(len([interest for interest in agent_interests
+            if interest > 0]))
+
+        # Grow agent resources:
+        for agent in self.agents:
+            agent.grow_resources()
 
 
     def interaction(self):
@@ -258,6 +319,25 @@ class Model(object):
         if self.verbose:
             print "Transfering", interest.id_num, "from", old_owner.id_num, "to", new_owner.id_num
 
+    def to_dict(self):
+        '''
+        Export model state to dictionary.
+        '''
+
+        params = {
+            "interest_count": self.interest_count,
+            "interaction_count": self.interaction_count,
+            "internal_conflict_rule": self.internal_conflict_rule,
+            "initialization": self.initialization
+        }
+
+        output = {
+            "parameters": params,
+            "interests_per_turn": self.interests_per_turn,
+            "active_agents": self.active_agents,
+        }
+
+        return output
 
 
 
