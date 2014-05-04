@@ -1,3 +1,4 @@
+import json
 from Model import Model
 
 class BatchRunner(object):
@@ -41,5 +42,14 @@ class BatchRunner(object):
                 print "Running", i
             model.run_model(self.step_count)
             self.model_outputs.append(model.to_dict())
+
+    def export_results(self, filepath):
+        '''
+        Write the model_outputs to a JSON file.
+        '''
+        f = open(filepath, "wb")
+        json.dump(self.model_outputs, f)
+        f.close()
+        
 
 
