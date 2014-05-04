@@ -1,4 +1,6 @@
 import json
+import gzip
+
 from Model import Model
 
 class BatchRunner(object):
@@ -45,11 +47,19 @@ class BatchRunner(object):
 
     def export_results(self, filepath):
         '''
-        Write the model_outputs to a JSON file.
+        Write the model_outputs to a compressed JSON file.
         '''
-        f = open(filepath, "wb")
-        json.dump(self.model_outputs, f)
+        f = gzip.open(filepath, "wb")
+        f.write(json.dumps(self.model_outputs))
         f.close()
-        
+
+    @staticmethod
+    def import_results(filepath):
+        '''
+        Import the model outputs previously written by export_results
+        '''
+        f = gzip.open(filepath, "rb")
+        return json.loads(f.read())
+
 
 
